@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.text-title {
+    font-size: 50px;
+}
+
+.text-2xs{
+    font-size: 8px;
+}
