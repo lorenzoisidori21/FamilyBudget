@@ -1,10 +1,10 @@
 // components/MonthlyView.tsx
-import React from "react";
 import MonthlyData from "../dto/MonthlyData";
 import Transaction from "../dto/Transaction";
 import { v4 as uuidv4 } from "uuid";
 import { BiArrowToBottom, BiArrowToTop, BiMoney, BiMoneyWithdraw, BiTrash } from "react-icons/bi";
 import { Button } from "flowbite-react";
+import { Card } from "flowbite-react";
 
 interface Props {
   month: string;
@@ -12,7 +12,7 @@ interface Props {
   onUpdate: (updatedData: MonthlyData) => void;
 }
 
-const MonthlyView: React.FC<Props> = ({ month, data, onUpdate }) => {
+function MonthlyView({ month, data, onUpdate }: Props) {
   const handleAddTransaction = () => {
     const newTransaction: Transaction = {
       id: uuidv4(),
@@ -61,18 +61,14 @@ const MonthlyView: React.FC<Props> = ({ month, data, onUpdate }) => {
 
       <div className="space-y-2">
         {data.transactions.map((t) => (
-          <div
-            key={t.id}
-            className="flex flex-row md:flex-row items-center gap-2 border p-2 rounded"
-          >
+          <Card >
             <div className="flex items-center gap-2">
               {t.type === "income" ? (
-                <BiArrowToTop className="text-green-500" />
+                <BiArrowToTop className={t.useForSummary ? ("text-green-500") : "text-grey-200" } />
               ) : (
                 <BiArrowToBottom className={t.useForSummary ? ("text-red-500") : "text-grey-200" }/>
               )}
-            </div>
-            <input
+              <input
               type="text"
               className={t.useForSummary ? "flex-1 border px-2 py-1 rounded" : "flex-1 border px-2 py-1 rounded line-through"}
               value={t.description}
@@ -80,6 +76,9 @@ const MonthlyView: React.FC<Props> = ({ month, data, onUpdate }) => {
                 handleUpdateTransaction(t.id, { description: e.target.value })
               }
             />
+            </div>
+            
+            <div className="flex items-center gap-2">
             <input
               type="number"
               className="w-28 border px-2 py-1 rounded"
@@ -108,24 +107,27 @@ const MonthlyView: React.FC<Props> = ({ month, data, onUpdate }) => {
             >
               <option value="income">Entrata</option>
               <option value="expense">Spesa</option>
-            </select>            
-            <button
-              onClick={(e) => handleUpdateTransaction(t.id, { useForSummary: !t.useForSummary as Transaction["useForSummary"] })}
-              className={ t.useForSummary ? "text-red-600 hover:text-red-800" :  "text-green-600 hover:text-green-800"}
-            >
-                { t.useForSummary ? 
-                (<BiMoneyWithdraw />)
-                :
-                (<BiMoney />)
-                }
-            </button>
-            <button
-              onClick={() => handleDeleteTransaction(t.id)}
-              className="text-grey-600 hover:text-grey--800"
-            >
-              <BiTrash/>
-            </button>
-          </div>
+            </select> 
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => handleUpdateTransaction(t.id, { useForSummary: !t.useForSummary as Transaction["useForSummary"] })}
+                className={ t.useForSummary ? "text-red-600 hover:text-red-800" :  "text-green-600 hover:text-green-800"}
+              >
+                  { t.useForSummary ? 
+                  (<BiMoneyWithdraw />)
+                  :
+                  (<BiMoney />)
+                  }
+              </button>
+              <button
+                onClick={() => handleDeleteTransaction(t.id)}
+                className="text-grey-600 hover:text-grey--800"
+              >
+                <BiTrash/>
+              </button>
+            </div>           
+          </Card>
         ))}
       </div>
 

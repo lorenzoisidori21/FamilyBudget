@@ -1,5 +1,4 @@
 // components/MonthSelector.tsx
-import React from "react";
 
 type MonthSelectorProps = {
   availableMonths: string[];

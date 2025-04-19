@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MonthSelector from "./Components/MonthSelector";
 import MonthlyView from "./Components/MonthlyView";
 import { getAvailableMonths } from "./logic/dateUtils";
