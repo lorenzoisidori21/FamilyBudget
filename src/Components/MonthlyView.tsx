@@ -59,10 +59,10 @@ function MonthlyView({ month, data, onUpdate }: Props) {
         Aggiungi Voce
       </Button>
 
-      <div className="space-y-2">
+      <div className="space-y-2 " >
         {data.transactions.map((t) => (
-          <Card >
-            <div className="flex items-center gap-2">
+          <Card className={t.type == "expense" ?  ("border px-2 border-s-8 border-s-red-700") : ("border px-2 border-s-8 border-s-emerald-600")}>
+            <div className="flex items-center gap-1">
               {t.type === "income" ? (
                 <BiArrowToTop className={t.useForSummary ? ("text-green-500") : "text-grey-200" } />
               ) : (
@@ -78,11 +78,12 @@ function MonthlyView({ month, data, onUpdate }: Props) {
             />
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
             <input
               type="number"
-              className="w-28 border px-2 py-1 rounded"
+              className="w-16 border px-2 py-1 rounded"
               value={t.amount}
+              
               onChange={(e) =>
                 handleUpdateTransaction(t.id, { amount: parseFloat(e.target.value) })
               }
@@ -90,6 +91,7 @@ function MonthlyView({ month, data, onUpdate }: Props) {
             <select
               className="border px-2 py-1 rounded"
               value={t.paymentMethod}
+              hidden={t.type == "income"}
               onChange={(e) =>
                 handleUpdateTransaction(t.id, { paymentMethod: e.target.value as Transaction["paymentMethod"] })
               }
@@ -107,24 +109,22 @@ function MonthlyView({ month, data, onUpdate }: Props) {
             >
               <option value="income">Entrata</option>
               <option value="expense">Spesa</option>
-            </select> 
-            </div>
-            <div className="flex items-center gap-2">
+            </select>
               <button 
                 onClick={() => handleUpdateTransaction(t.id, { useForSummary: !t.useForSummary as Transaction["useForSummary"] })}
                 className={ t.useForSummary ? "text-red-600 hover:text-red-800" :  "text-green-600 hover:text-green-800"}
               >
                   { t.useForSummary ? 
-                  (<BiMoneyWithdraw />)
+                  (<BiMoneyWithdraw  className="size-8"/>)
                   :
-                  (<BiMoney />)
+                  (<BiMoney  className="size-8"/>)
                   }
               </button>
               <button
                 onClick={() => handleDeleteTransaction(t.id)}
                 className="text-grey-600 hover:text-grey--800"
               >
-                <BiTrash/>
+                <BiTrash className="size-10"/>
               </button>
             </div>           
           </Card>
