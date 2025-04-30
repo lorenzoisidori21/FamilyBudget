@@ -2,9 +2,11 @@
 import MonthlyData from "../dto/MonthlyData";
 import Transaction from "../dto/Transaction";
 import { v4 as uuidv4 } from "uuid";
-import { BiArrowToBottom, BiArrowToTop, BiMoney, BiMoneyWithdraw, BiTrash } from "react-icons/bi";
+import { BiArrowToBottom, BiArrowToTop, BiTrash } from "react-icons/bi";
 import { Button } from "flowbite-react";
 import { Card } from "flowbite-react";
+import EventBus from "../logic/EventBus";
+import { getTransactionBorderClass } from "../utils/styleHelper";
 
 interface Props {
   month: string;
@@ -26,6 +28,26 @@ function MonthlyView({ month, data, onUpdate }: Props) {
       ...data,
       transactions: [...data.transactions, newTransaction],
     });
+    EventBus.emit("transactionAdded", { id: newTransaction.id, description: newTransaction.description });
+  };
+
+  
+  const toggleTransactionType = (t: Transaction) => {
+    let newType = t.type;
+    let newUseForSummary  = t.useForSummary;
+    if(t.type === "expense" && t.useForSummary){
+      newType = "income";
+      newUseForSummary = true;
+    }
+    else if(t.type === "income" && t.useForSummary){
+      newType = "expense";                
+      newUseForSummary = false;
+    }
+    else if(t.type === "expense" && !t.useForSummary){
+      newType = "expense";
+      newUseForSummary = true;
+    }
+    handleUpdateTransaction(t.id, { type: newType, useForSummary: newUseForSummary });
   };
 
   const handleUpdateTransaction = (id: string, updated: Partial<Transaction>) => {
@@ -61,7 +83,15 @@ function MonthlyView({ month, data, onUpdate }: Props) {
 
       <div className="space-y-2 " >
         {data.transactions.map((t) => (
-          <Card className={t.type == "expense" ?  ("border px-2 border-s-8 border-s-red-700") : ("border px-2 border-s-8 border-s-emerald-600")}>
+          <Card key={t.id} className={`border px-2 border-s-8 cursor-pointer select-none ${getTransactionBorderClass(t)}`}
+            onClick={(e) => {
+              // Evita il click se è partito da un input o da un button
+              if ((e.target as HTMLElement).tagName === "INPUT" || (e.target as HTMLElement).tagName === "BUTTON" || (e.target as HTMLElement).tagName === "SELECT" || (e.target as HTMLElement).tagName === "path" || (e.target as HTMLElement).tagName === "svg") {
+                return;
+              }
+              toggleTransactionType(t);
+            }}
+>
             <div className="flex items-center gap-1">
               {t.type === "income" ? (
                 <BiArrowToTop className={t.useForSummary ? ("text-green-500") : "text-grey-200" } />
@@ -100,26 +130,6 @@ function MonthlyView({ month, data, onUpdate }: Props) {
               <option value="bancomat">Bancomat</option>
               <option value="carta">Carta</option>
             </select>
-            <select
-              className="border px-2 py-1 rounded"
-              value={t.type}
-              onChange={(e) =>
-                handleUpdateTransaction(t.id, { type: e.target.value as Transaction["type"] })
-              }
-            >
-              <option value="income">Entrata</option>
-              <option value="expense">Spesa</option>
-            </select>
-              <button 
-                onClick={() => handleUpdateTransaction(t.id, { useForSummary: !t.useForSummary as Transaction["useForSummary"] })}
-                className={ t.useForSummary ? "text-red-600 hover:text-red-800" :  "text-green-600 hover:text-green-800"}
-              >
-                  { t.useForSummary ? 
-                  (<BiMoneyWithdraw  className="size-8"/>)
-                  :
-                  (<BiMoney  className="size-8"/>)
-                  }
-              </button>
               <button
                 onClick={() => handleDeleteTransaction(t.id)}
                 className="text-grey-600 hover:text-grey--800"

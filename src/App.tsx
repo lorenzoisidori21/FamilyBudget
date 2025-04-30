@@ -4,34 +4,37 @@ import MonthSelector from "./Components/MonthSelector";
 import MonthlyView from "./Components/MonthlyView";
 import { getAvailableMonths } from "./logic/dateUtils";
 import MonthlyData from "./dto/MonthlyData";
+import TransactionLogger from "./Components/TransactionLogger";
+import { BudgetService } from "./logic/BudgetService";
 
 export default function App() {
+  const budgetService = new BudgetService();
   // Stato mese selezionato e dati mensili
   const [selectedMonth, setSelectedMonth] = useState<string | null>(
-    () => localStorage.getItem("selectedMonth") || null
+    () => budgetService.loadSelectedMonth()
   );
   const [monthlyData, setMonthlyData] = useState<Record<string, MonthlyData>>({});
 
-  // Caricamento iniziale dati da localStorage
+  // Caricamento iniziale dati
   useEffect(() => {
-    const stored = localStorage.getItem("bilancioData");
+    const stored = budgetService.loadAllData();
     if (stored) {
-      setMonthlyData(JSON.parse(stored));
+      setMonthlyData(stored);
     }
   }, []);
 
   // Persistenza selezione mese
   useEffect(() => {
     if (selectedMonth) {
-      localStorage.setItem("selectedMonth", selectedMonth);
+      budgetService.saveSelectedMonth(selectedMonth);
     }
   }, [selectedMonth]);
 
-  // Funzione per aggiornare dati mensili e salvare subito in localStorage
+  // Funzione per aggiornare dati mensili e salvare subito in storage
   const updateMonthlyData = (data: MonthlyData) => {
     setMonthlyData((prev) => {
       const updated = { ...prev, [data.month]: data };
-      localStorage.setItem("bilancioData", JSON.stringify(updated));
+      budgetService.saveAllData(updated);
       return updated;
     });
   };
@@ -52,6 +55,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-100 p-4 text-gray-800">
       <h1 className="text-2xl font-bold mb-4 text-center">Bilancio Familiare</h1>
+      <TransactionLogger/>
       <MonthSelector
         availableMonths={availableMonths}
         onSelect={handleMonthSelect}
